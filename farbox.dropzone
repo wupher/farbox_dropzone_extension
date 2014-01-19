@@ -1,0 +1,58 @@
+#!/usr/bin/ruby
+
+# Dropzone Destination Info
+# Name: Farbox
+# Description: send textmate or pic to farbox dir
+# Handles: NSFilenamesPboardType
+# Creator: Wupher
+# URL: http://wupher.me
+# IconURL: http://wupher.github.io/farbox_dropzone_extension/farbox.png
+# Events: Clicked, Dragged
+
+
+require "base64"
+
+def dropbox?
+  dropbox_conf = ENV['HOME'] + '/.dropbox/host.db'
+  if File.exist? dropbox_conf
+    @farbox_dir = Base64.decode64(File.open(dropbox_conf).read).match(/\/.+$/)[0] + '/应用/FarBox/wupher.farbox.com/' 
+    return true
+  else
+    return false
+  end
+end
+
+def dragged
+  $dz.determinate(true)  
+  if not dropbox?
+    $dz.finish("Dropbox client is not installed")
+    return
+  end
+  
+  if $items.length > 1
+    $items.each do |path|
+      path.gsub!(/\A(['"])(.*)\1\z/,'\2')      
+      copyFile path
+    end   
+  else
+    path = $items[0]   
+    path.gsub!(/\A(['"])(.*)\1\z/,'\2')      
+    copyFile path
+  end
+end
+
+def copyFile(path)
+  if File.directory? path
+    Rsync.do_copy(path, @farbox_dir, false)
+  else
+    Rsync.do_copy(path, @farbox_dir, false)    
+  end
+end
+
+def clicked
+  if not dropbox?
+    $dz.determinate(false)
+  else
+    `osascript -e 'tell application "Finder"' -e 'activate' -e 'open folder POSIX file "#{@farbox_dir}"' -e 'end tell'`  
+  end
+end
