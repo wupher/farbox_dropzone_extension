@@ -23,28 +23,25 @@ def dropbox?
 end
 
 def dragged
-  $dz.determinate(true)  
   if not dropbox?
-    $dz.finish("Dropbox client is not installed")
+    # $dz.text("Dropbox client is not installed")
     return
   end
-  
+  # $dz.determinate(true)
   path = $items[0]   
   path = path.gsub(/\A(['"])(.*)\1\z/, '\2')
   copyFile path
 end
 
 def copyFile(path)
-  if File.directory? path
-    Rsync.do_copy(path, @farbox_dir, false)
-  else
-    Rsync.do_copy(path, @farbox_dir, false)    
-  end
+  # $dz.begin("Copying #{File.basename(path)} to farbox dir")
+  Rsync.do_copy(path, @farbox_dir, false, false)
+  # $dz.finish("copy done, wait farbox to sync")
 end
 
 def clicked
   if not dropbox?
-    $dz.determinate(false)
+    # $dz.text("Dropbox client is not installed")
   else
     `osascript -e 'tell application "Finder"' -e 'activate' -e 'open folder POSIX file "#{@farbox_dir}"' -e 'end tell'`  
   end
