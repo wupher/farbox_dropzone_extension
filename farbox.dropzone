@@ -29,16 +29,9 @@ def dragged
     return
   end
   
-  if $items.length > 1
-    $items.each do |path|
-      path.gsub!(/\A(['"])(.*)\1\z/,'\2')      
-      copyFile path
-    end   
-  else
-    path = $items[0]   
-    path.gsub!(/\A(['"])(.*)\1\z/,'\2')      
-    copyFile path
-  end
+  path = $items[0]   
+  path = path.gsub(/\A(['"])(.*)\1\z/, '\2')
+  copyFile path
 end
 
 def copyFile(path)
